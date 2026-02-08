@@ -8,7 +8,20 @@ updateThemeIcon(currentTheme);
 
 themeSwitcher?.addEventListener('click', () => {
   const currentTheme = html.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  let newTheme: string;
+
+  // 循環切換：light -> dark -> terminal -> light
+  switch (currentTheme) {
+    case 'dark':
+      newTheme = 'terminal';
+      break;
+    case 'terminal':
+      newTheme = 'light';
+      break;
+    default:
+      newTheme = 'dark';
+  }
+
   html.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
   updateThemeIcon(newTheme);
@@ -17,14 +30,21 @@ themeSwitcher?.addEventListener('click', () => {
 function updateThemeIcon(theme: string): void {
   const icon = themeSwitcher?.querySelector('i');
   if (!icon) return;
-  
-  if (theme === 'dark') {
-    icon.classList.remove('bi-sun-fill');
-    icon.classList.add('bi-moon-fill');
-  } else {
-    icon.classList.remove('bi-moon-fill');
-    icon.classList.add('bi-sun-fill');
+
+  // 移除舊的所有圖標類
+  icon.classList.remove('bi-sun-fill', 'bi-moon-fill', 'bi-terminal');
+
+  // 根據主題添加新的圖標
+  switch (theme) {
+    case 'dark':
+      icon.classList.add('bi-moon-fill');
+      break;
+    case 'terminal':
+      icon.classList.add('bi-terminal');
+      break;
+    default: // light
+      icon.classList.add('bi-sun-fill');
   }
 }
 
-export {};
+export { };
