@@ -78,8 +78,8 @@ defineExpose({
     flex-direction: column;
     transition: all 0.3s ease;
     animation: fadeInUp 0.4s ease-out;
-    height: 90vh;
-    max-height: 90vh;
+    height: 100%;
+    /* max-height: 90vh; */
 }
 
 .modern-card.fullscreen-mode {
