@@ -206,7 +206,7 @@ function scrollToTop() {
                             輸入 Markdown
                         </h6>
                         <button class="btn btn-sm btn-outline-danger" @click="clearMarkdown">
-                            <i class="bi bi-x-lg me-1"></i> 清除
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                     <div class="flex-grow-1 min-h-0">

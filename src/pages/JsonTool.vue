@@ -22,8 +22,13 @@ const jsonError = ref('')
 const action = ref('format')
 const viewMode = ref('text')
 const isMinified = ref(false)
+const isAllFolded = ref(false)
 const splitRatio = ref(50)
 let currentJSON: any = null
+
+// 輸入區和輸出區的 ref
+const inputEditor = ref()
+const outputEditor = ref()
 
 const isValid = computed(() => {
     if (!jsonInput.value.trim()) return null
@@ -39,24 +44,29 @@ function validateJSON() {
         jsonError.value = ''
         return true
     } else {
+        // 自動嘗試修復無效的 JSON
+        const repairResult = attemptJSONRepair(jsonInput.value)
+        if (repairResult.success) {
+            jsonInput.value = repairResult.repaired
+            // 解析修復後的 JSON 取得資料
+            currentJSON = JSON.parse(repairResult.repaired)
+            jsonStatus.value = '✓ 已自動修復'
+            jsonError.value = ''
+            Swal.fire({
+                icon: 'success',
+                title: 'JSON 已自動修復',
+                text: '偵測到格式問題並已自動修正',
+                toast: true,
+                position: 'center',
+                timer: 2000,
+                showConfirmButton: false
+            })
+            return true
+        }
         jsonStatus.value = '✗ 無效'
         jsonError.value = `錯誤: ${result.error}`
         return false
     }
-}
-
-// 語法高亮函數
-function jsonToSyntaxHTML(jsonString: string): string {
-    return jsonString
-        .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
-        .replace(/"([^"]*)"(?=\s*[,\}\]])/g, '<span class="json-string">"$1"</span>')
-        .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
-        .replace(/:\s*(true|false)/g, ': <span class="json-boolean">$1</span>')
-        .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>')
-        .replace(/[\[\]]/g, '<span class="json-bracket">$&</span>')
-        .replace(/[\{\}]/g, '<span class="json-brace">$&</span>')
-        .replace(/,/g, '<span class="json-comma">,</span>')
-        .replace(/:/g, '<span class="json-colon">:</span>')
 }
 
 // Tree 視圖生成函數
@@ -123,8 +133,8 @@ function updateDisplay() {
     }
 
     if (viewMode.value === 'text') {
-        const formatted = JSON.stringify(displayData, null, 2)
-        jsonOutput.value = jsonToSyntaxHTML(formatted)
+        // 存儲原始 JSON 字符串，讓 CodeMirror 處理語法高亮
+        jsonOutput.value = JSON.stringify(displayData, null, isMinified.value ? undefined : 2)
         jsonTreeOutput.value = ''
     } else {
         jsonTreeOutput.value = `<div class="json-tree">${createTreeView(displayData)}</div>`
@@ -168,6 +178,10 @@ function processJSON() {
         })
         return
     }
+    // Format 模式下自動美化輸入區 JSON
+    if (action.value === 'format' && currentJSON) {
+        jsonInput.value = JSON.stringify(currentJSON, null, 2)
+    }
     isMinified.value = false
     updateDisplay()
 }
@@ -181,20 +195,63 @@ function clearJSON() {
     currentJSON = null
 }
 
+function toggleFoldAll() {
+    if (isAllFolded.value) {
+        // 展開所有
+        inputEditor.value?.unfoldAll()
+        if (viewMode.value === 'text') {
+            outputEditor.value?.unfoldAll()
+        }
+        isAllFolded.value = false
+        Swal.fire({
+            icon: 'info',
+            title: '已展開所有區塊',
+            toast: true,
+            position: 'center',
+            timer: 1500,
+            showConfirmButton: false
+        })
+    } else {
+        // 收折所有
+        inputEditor.value?.foldAll()
+        if (viewMode.value === 'text') {
+            outputEditor.value?.foldAll()
+        }
+        isAllFolded.value = true
+        Swal.fire({
+            icon: 'info',
+            title: '已收折所有區塊',
+            toast: true,
+            position: 'center',
+            timer: 1500,
+            showConfirmButton: false
+        })
+    }
+}
+
 function autoFixJSONInput() {
     const result = attemptJSONRepair(jsonInput.value)
     if (result.success) {
         jsonInput.value = result.repaired
         validateJSON()
         jsonStatus.value = '✓ 已自動修復'
-    } else {
-        jsonError.value = `修復失敗: ${result.error}`
         Swal.fire({
-            icon: 'error',
-            title: '自動修復失敗',
+            icon: 'success',
+            title: 'JSON 已自動修復',
+            text: '格式問題已成功修正',
             toast: true,
             position: 'center',
             timer: 2000,
+            showConfirmButton: false
+        })
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: '自動修復失敗',
+            text: result.error || '無法修復此 JSON 格式',
+            toast: true,
+            position: 'center',
+            timer: 3000,
             showConfirmButton: false
         })
     }
@@ -223,13 +280,8 @@ function minifyJSON() {
 
     if (viewMode.value === 'text') {
         const action_val = action.value === 'schema' ? generateJSONSchema(currentJSON) : currentJSON
-        if (isMinified.value) {
-            // 壓縮
-            jsonOutput.value = jsonToSyntaxHTML(JSON.stringify(action_val))
-        } else {
-            // 展開
-            jsonOutput.value = jsonToSyntaxHTML(JSON.stringify(action_val, null, 2))
-        }
+        // 存儲原始 JSON 字符串
+        jsonOutput.value = JSON.stringify(action_val, null, isMinified.value ? undefined : 2)
     } else {
         // Tree 模式：展開/折疊所有節點
         const displayData = action.value === 'schema' ? generateJSONSchema(currentJSON) : currentJSON
@@ -316,25 +368,27 @@ watch([action, viewMode], () => {
                                     <input type="radio" class="btn-check" v-model="action" value="format"
                                         id="json-action-format" />
                                     <label class="btn btn-outline-primary" for="json-action-format" title="格式化">
-                                        <i class="bi bi-code-square"></i> Format
+                                        <i class="bi bi-braces"></i>
                                     </label>
                                     <input type="radio" class="btn-check" v-model="action" value="schema"
                                         id="json-action-schema" />
                                     <label class="btn btn-outline-primary" for="json-action-schema" title="JSON Schema">
-                                        <i class="bi bi-diagram-3"></i> Schema
+                                        <i class="bi bi-diagram-3"></i>
                                     </label>
                                 </div>
-                                <button class="btn btn-sm btn-outline-warning" @click="autoFixJSONInput"
-                                    title="自動修復 JSON 格式和移除註解">
+                                <button class="btn btn-sm btn-outline-secondary" @click="toggleFoldAll" :title="isAllFolded ? '展開所有' : '收折所有'">
+                                    <i class="bi" :class="isAllFolded ? 'bi-arrows-expand' : 'bi-arrows-collapse'"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" @click="autoFixJSONInput" title="自動修復 JSON 格式和移除註解">
                                     <i class="bi bi-tools"></i> 修復
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger" @click="clearJSON" title="清除">
-                                    <i class="bi bi-x-lg"></i>清除
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="flex-grow-1 min-h-0">
-                            <LineNumbersEditor v-model="jsonInput" @input="validateJSON"
+                            <LineNumbersEditor ref="inputEditor" v-model="jsonInput" @input="validateJSON"
                                 placeholder="在這裡貼上您的 JSON..." />
                         </div>
                         <div v-if="jsonError" class="mt-2" style="min-height: 1.5rem">
@@ -372,16 +426,22 @@ watch([action, viewMode], () => {
                                     {{ isMinified ? '展開' : '壓縮' }}
                                 </button>
                                 <CopyButton v-show="viewMode === 'text' ? jsonOutput : jsonTreeOutput"
-                                    :text="() => viewMode === 'text' ? stripHtmlTags(jsonOutput) : stripHtmlTags(jsonTreeOutput)"
+                                    :text="() => viewMode === 'text' ? jsonOutput : stripHtmlTags(jsonTreeOutput)"
                                     copiedText="已複製" btnClass="btn-sm btn-outline-success" effect="firework" />
                             </div>
                         </div>
-                        <div class="modern-output-wrapper overflow-hidden flex-grow-1 min-h-0"
-                            style="box-shadow: var(--shadow-sm)" tabindex="0" :ref="outputWrapper"
+                        <div class="modern-output-wrapper overflow-hidden flex-grow-1 min-h-0 output-container"
+                            style="box-shadow: var(--shadow-sm); max-width: 100%; min-width: 0;" tabindex="0" :ref="outputWrapper"
                             @keydown="handleOutputKeydown">
-                            <pre v-if="viewMode === 'text'" class="modern-output p-3 m-0 h-100 overflow-y-auto"
-                                style="white-space: pre-wrap;" v-html="jsonOutput"></pre>
-                            <div v-else class="modern-output p-3 h-100 overflow-y-auto" v-html="jsonTreeOutput">
+                            <LineNumbersEditor 
+                                v-if="viewMode === 'text'" 
+                                ref="outputEditor"
+                                v-model="jsonOutput"
+                                :readonly="true"
+                                :showLineNumbers="true"
+                                class="h-100 output-editor"
+                            />
+                            <div v-else class="modern-output p-3 h-100 overflow-y-auto tree-view-container" v-html="jsonTreeOutput">
                             </div>
                         </div>
 
@@ -395,3 +455,97 @@ watch([action, viewMode], () => {
         </div>
     </ToolWrapper>
 </template>
+
+<style scoped>
+.input-section, .output-section {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.output-container {
+    border: 1px solid var(--theme-border);
+    border-radius: 4px;
+    background: var(--theme-bg-card);
+}
+
+.output-editor {
+    width: 100%;
+    max-width: 100%;
+}
+
+.tree-view-container {
+    font-family: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    background: var(--theme-bg-card);
+    color: var(--theme-text);
+}
+
+.tree-view-container :deep(.json-tree) {
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.tree-view-container :deep(.json-tree-item) {
+    padding-left: 20px;
+}
+
+.tree-view-container :deep(.json-tree-toggle) {
+    cursor: pointer;
+    user-select: none;
+    margin-right: 5px;
+}
+
+.tree-view-container :deep(.json-tree-children) {
+    transition: all 0.2s ease;
+}
+
+.tree-view-container :deep(.json-tree-collapsed) {
+    display: none;
+}
+
+.tree-view-container :deep(.json-key) {
+    color: #005cc5;
+}
+
+.tree-view-container :deep(.json-string) {
+    color: #032f62;
+}
+
+.tree-view-container :deep(.json-number) {
+    color: #005cc5;
+}
+
+.tree-view-container :deep(.json-boolean) {
+    color: #d73a49;
+}
+
+.tree-view-container :deep(.json-null) {
+    color: #d73a49;
+}
+
+[data-theme="dark"] .tree-view-container :deep(.json-key) {
+    color: #7ee787;
+}
+
+[data-theme="dark"] .tree-view-container :deep(.json-string) {
+    color: #a5d6ff;
+}
+
+[data-theme="dark"] .tree-view-container :deep(.json-number) {
+    color: #79c0ff;
+}
+
+[data-theme="dark"] .tree-view-container :deep(.json-boolean),
+[data-theme="dark"] .tree-view-container :deep(.json-null) {
+    color: #ff7b72;
+}
+
+[data-theme="terminal"] .tree-view-container :deep(.json-key),
+[data-theme="terminal"] .tree-view-container :deep(.json-string),
+[data-theme="terminal"] .tree-view-container :deep(.json-number),
+[data-theme="terminal"] .tree-view-container :deep(.json-boolean),
+[data-theme="terminal"] .tree-view-container :deep(.json-null) {
+    color: #00ff41;
+}
+</style>
