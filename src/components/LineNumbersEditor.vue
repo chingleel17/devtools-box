@@ -5,8 +5,7 @@ import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView } from '@codemirror/view'
 import { lineNumbers } from '@codemirror/view'
-import { foldGutter, foldKeymap, foldAll, unfoldAll } from '@codemirror/language'
-import { keymap } from '@codemirror/view'
+import { foldAll, unfoldAll } from '@codemirror/language'
 import { Compartment } from '@codemirror/state'
 
 const props = withDefaults(defineProps<{
@@ -34,7 +33,6 @@ const emit = defineEmits<{
 
 // theme 動態決定
 const theme = ref<'light' | 'dark' | 'terminal'>('light')
-const editorRef = ref()
 const cmView = ref<any>(null)
 const value = ref(props.modelValue)
 const themeCompartment = new Compartment()
