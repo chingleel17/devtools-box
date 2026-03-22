@@ -1,16 +1,23 @@
-import { ref } from 'vue'
-import { useLocalStorage } from './useLocalStorage'
-
 export type MenuMode = 'list' | 'search'
 
-// 全局單例狀態，確保跨組件同步
-const isCollapsed = useLocalStorage<boolean>('terminal-sidebar-collapsed', false)
-const menuMode = ref<MenuMode>('list')
-const searchFocused = ref<boolean>(false)
-
 export function useTerminalMode() {
+    const storageKey = 'terminal-sidebar-collapsed'
+    const isCollapsed = useState<boolean>('terminal-sidebar-collapsed', () => false)
+    const menuMode = useState<MenuMode>('terminal-menu-mode', () => 'list')
+    const searchFocused = useState<boolean>('terminal-search-focused', () => false)
+
+    onMounted(() => {
+        const stored = localStorage.getItem(storageKey)
+        if (stored !== null) {
+            isCollapsed.value = stored === 'true'
+        }
+    })
+
     const toggleCollapsed = () => {
         isCollapsed.value = !isCollapsed.value
+        if (import.meta.client) {
+            localStorage.setItem(storageKey, String(isCollapsed.value))
+        }
     }
 
     const toggleMenuMode = (mode: MenuMode) => {

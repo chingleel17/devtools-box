@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import Swal from 'sweetalert2'
 import { ref, computed, watch, nextTick } from 'vue'
-import { useOutputSelectAll } from '../composables/useOutputSelectAll'
+import { useOutputSelectAll } from '../../../composables/useOutputSelectAll'
 import { shallowRef } from 'vue'
-import LineNumbersEditor from '../components/LineNumbersEditor.vue'
-import CopyButton from '../components/CopyButton.vue'
-import ToolWrapper from '../components/ToolWrapper.vue'
-import ConvertButton from '../components/ConvertButton.vue'
-import ResizableSplitPane from '../components/ResizableSplitPane.vue'
-import { validateAndParseJSON, attemptJSONRepair } from '../json-utils'
-import { useLocalStorage } from '../composables/useLocalStorage'
+import LineNumbersEditor from '../../../components/LineNumbersEditor.vue'
+import CopyButton from '../../../components/CopyButton.vue'
+import ToolWrapper from '../../../components/ToolWrapper.vue'
+import ConvertButton from '../../../components/ConvertButton.vue'
+import ResizableSplitPane from '../../../components/ResizableSplitPane.vue'
+import { validateAndParseJSON, attemptJSONRepair } from '../../../utils/json-utils'
+import { useLocalStorage } from '../../../composables/useLocalStorage'
 
 const jsonInput = useLocalStorage('json-tool-input', '')
 // output 區塊 ref
@@ -376,10 +376,12 @@ watch([action, viewMode], () => {
                                         <i class="bi bi-diagram-3"></i>
                                     </label>
                                 </div>
-                                <button class="btn btn-sm btn-outline-secondary" @click="toggleFoldAll" :title="isAllFolded ? '展開所有' : '收折所有'">
+                                <button class="btn btn-sm btn-outline-secondary" @click="toggleFoldAll"
+                                    :title="isAllFolded ? '展開所有' : '收折所有'">
                                     <i class="bi" :class="isAllFolded ? 'bi-arrows-expand' : 'bi-arrows-collapse'"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning" @click="autoFixJSONInput" title="自動修復 JSON 格式和移除註解">
+                                <button class="btn btn-sm btn-outline-warning" @click="autoFixJSONInput"
+                                    title="自動修復 JSON 格式和移除註解">
                                     <i class="bi bi-tools"></i> 修復
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger" @click="clearJSON" title="清除">
@@ -431,17 +433,12 @@ watch([action, viewMode], () => {
                             </div>
                         </div>
                         <div class="modern-output-wrapper overflow-hidden flex-grow-1 min-h-0 output-container"
-                            style="box-shadow: var(--shadow-sm); max-width: 100%; min-width: 0;" tabindex="0" :ref="outputWrapper"
-                            @keydown="handleOutputKeydown">
-                            <LineNumbersEditor 
-                                v-if="viewMode === 'text'" 
-                                ref="outputEditor"
-                                v-model="jsonOutput"
-                                :readonly="true"
-                                :showLineNumbers="true"
-                                class="h-100 output-editor"
-                            />
-                            <div v-else class="modern-output p-3 h-100 overflow-y-auto tree-view-container" v-html="jsonTreeOutput">
+                            style="box-shadow: var(--shadow-sm); max-width: 100%; min-width: 0;" tabindex="0"
+                            :ref="outputWrapper" @keydown="handleOutputKeydown">
+                            <LineNumbersEditor v-if="viewMode === 'text'" ref="outputEditor" v-model="jsonOutput"
+                                :readonly="true" :showLineNumbers="true" class="h-100 output-editor" />
+                            <div v-else class="modern-output p-3 h-100 overflow-y-auto tree-view-container"
+                                v-html="jsonTreeOutput">
                             </div>
                         </div>
 
@@ -457,7 +454,8 @@ watch([action, viewMode], () => {
 </template>
 
 <style scoped>
-.input-section, .output-section {
+.input-section,
+.output-section {
     min-width: 0;
     max-width: 100%;
 }

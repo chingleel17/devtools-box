@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const theme = ref(localStorage.getItem('theme') || 'light')
+type ThemeMode = 'light' | 'dark' | 'terminal'
+const theme = ref<ThemeMode>('light')
+
+const applyTheme = (): void => {
+    if (!import.meta.client) return
+    document.documentElement.setAttribute('data-theme', theme.value)
+}
 
 // 切換順序：Light -> Dark -> Terminal -> Light
 function toggleTheme() {
@@ -13,8 +19,10 @@ function toggleTheme() {
         theme.value = 'light'
     }
 
-    document.documentElement.setAttribute('data-theme', theme.value)
-    localStorage.setItem('theme', theme.value)
+    applyTheme()
+    if (import.meta.client) {
+        localStorage.setItem('theme', theme.value)
+    }
 }
 
 // 獲取對應的圖示
@@ -30,7 +38,11 @@ function getThemeIcon() {
 }
 
 onMounted(() => {
-    document.documentElement.setAttribute('data-theme', theme.value)
+    const storedTheme = localStorage.getItem('theme') as ThemeMode | null
+    if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'terminal') {
+        theme.value = storedTheme
+    }
+    applyTheme()
 })
 </script>
 

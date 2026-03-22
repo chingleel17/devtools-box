@@ -2,12 +2,12 @@
 import { ref, computed, nextTick } from "vue";
 import { diffLines, type Change } from "diff";
 import hljs from "highlight.js";
-import HighlightedEditor from "../components/HighlightedEditor.vue";
-import ToolWrapper from "../components/ToolWrapper.vue";
-import ResizableSplitPane from "../components/ResizableSplitPane.vue";
-import Switch from "../components/Switch.vue";
-import { useLocalStorage } from "../composables/useLocalStorage";
-import { useSyncScroll } from "../composables/useSyncScroll";
+import HighlightedEditor from "../../../components/HighlightedEditor.vue";
+import ToolWrapper from "../../../components/ToolWrapper.vue";
+import ResizableSplitPane from "../../../components/ResizableSplitPane.vue";
+import Switch from "../../../components/Switch.vue";
+import { useLocalStorage } from "../../../composables/useLocalStorage";
+import { useSyncScroll } from "../../../composables/useSyncScroll";
 
 type DiffStyle = "vscode" | "github";
 type ViewMode = "side-by-side" | "unified";

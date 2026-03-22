@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 interface Props {
     title: string
@@ -21,11 +21,18 @@ const exitFullscreen = () => {
     }
 }
 
-// ESC 鍵退出全螢幕
-document.addEventListener('keydown', (event) => {
+const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && isFullscreen.value) {
         exitFullscreen()
     }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('keydown', handleKeydown)
 })
 
 defineExpose({

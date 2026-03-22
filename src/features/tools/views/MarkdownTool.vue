@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
-import { useOutputSelectAll } from '../composables/useOutputSelectAll'
+import { ref, watch, nextTick, onMounted } from 'vue'
+import { useOutputSelectAll } from '../../../composables/useOutputSelectAll'
 import { shallowRef } from 'vue'
 const previewWrapper = shallowRef()
 const { handleOutputKeydown } = useOutputSelectAll(previewWrapper)
 import { marked } from 'marked'
 import mermaid from 'mermaid'
-import LineNumbersEditor from '../components/LineNumbersEditor.vue'
-import ToolWrapper from '../components/ToolWrapper.vue'
-import Switch from '../components/Switch.vue'
-import ResizableSplitPane from '../components/ResizableSplitPane.vue'
-import TocTree from '../components/TocTree.vue'
-import { useLocalStorage } from '../composables/useLocalStorage'
+import LineNumbersEditor from '../../../components/LineNumbersEditor.vue'
+import ToolWrapper from '../../../components/ToolWrapper.vue'
+import Switch from '../../../components/Switch.vue'
+import ResizableSplitPane from '../../../components/ResizableSplitPane.vue'
+import TocTree from '../../../components/TocTree.vue'
+import { useLocalStorage } from '../../../composables/useLocalStorage'
 
 interface TocItem {
     text: string
@@ -28,6 +28,7 @@ const previewContainer = ref<HTMLDivElement>()
 const toc = ref<TocItem[]>([])
 const showToc = ref(false)
 const isHoveringPreview = ref(false)
+const isMermaidReady = ref(false)
 
 const isScrolling = ref(false)
 const collectedHeadings = ref<{ text: string, level: number, id: string }[]>([])
@@ -38,11 +39,13 @@ function generateId(text: string): string {
         .replace(/^-+|-+$/g, '') || 'heading'
 }
 
-// Initialize mermaid
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose',
+onMounted(() => {
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+    })
+    isMermaidReady.value = true
 })
 
 // Configure marked renderer
@@ -80,7 +83,7 @@ renderer.link = function (this: any, item) {
 
 marked.use({ renderer })
 
-watch(markdownInput, async (newVal) => {
+const renderMarkdown = async (newVal: string) => {
     try {
         // Reset collected headings before render
         collectedHeadings.value = []
@@ -90,14 +93,20 @@ watch(markdownInput, async (newVal) => {
         // Generate TOC tree from collected headings
         buildTocTree()
 
-        await nextTick()
-        await mermaid.run({
-            nodes: document.querySelectorAll('.mermaid')
-        })
+        if (import.meta.client && isMermaidReady.value) {
+            await nextTick()
+            await mermaid.run({
+                nodes: document.querySelectorAll('.mermaid')
+            })
+        }
     } catch (e) {
         console.error('Markdown/Mermaid rendering failed:', e)
     }
-})
+}
+
+watch(markdownInput, (newVal) => {
+    void renderMarkdown(newVal)
+}, { immediate: true })
 
 function clearMarkdown() {
     markdownInput.value = ''
@@ -119,6 +128,7 @@ function handleInputScroll(e: Event) {
 
 function handlePreviewScroll(e: Event) {
     if (!syncScroll.value || isScrolling.value) return
+    if (!import.meta.client) return
 
     const preview = e.target as HTMLDivElement
     const scrollPercentage = preview.scrollTop / (preview.scrollHeight - preview.clientHeight)
@@ -158,6 +168,8 @@ function buildTocTree() {
 }
 
 function scrollToHeading(id: string) {
+    if (!import.meta.client) return
+
     const element = document.getElementById(id)
     if (element && previewContainer.value) {
         // Lock scrolling to prevent sync-scroll from interfering
