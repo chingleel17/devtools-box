@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import ToolWrapper from '../components/ToolWrapper.vue'
-import { useLocalStorage } from '../composables/useLocalStorage'
+import ToolWrapper from '../../../components/ToolWrapper.vue'
+import { useLocalStorage } from '../../../composables/useLocalStorage'
 
 interface PasswordOptions {
     length: number

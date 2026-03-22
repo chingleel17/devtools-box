@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import ResizableSplitPane from '../components/ResizableSplitPane.vue'
-import ToolWrapper from '../components/ToolWrapper.vue'
-import { jsonToToon, toonToJson, type ConversionStats } from '../toon-converter'
-import { useLocalStorage } from '../composables/useLocalStorage'
-import CopyButton from '../components/CopyButton.vue'
+import ResizableSplitPane from '../../../components/ResizableSplitPane.vue'
+import ToolWrapper from '../../../components/ToolWrapper.vue'
+import { jsonToToon, toonToJson, type ConversionStats } from '../../../utils/toon-converter'
+import { useLocalStorage } from '../../../composables/useLocalStorage'
+import CopyButton from '../../../components/CopyButton.vue'
 
 const inputText = useLocalStorage('toon-tool-input', '')
 const outputText = ref('')

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+
 import { Codemirror } from "vue-codemirror"
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -36,6 +37,7 @@ const theme = ref<'light' | 'dark' | 'terminal'>('light')
 const cmView = ref<any>(null)
 const value = ref(props.modelValue)
 const themeCompartment = new Compartment()
+let obs: MutationObserver | null = null
 
 function getThemeFromDom(): 'light' | 'dark' | 'terminal' {
   const fromAttr = document.documentElement.getAttribute('data-theme')
@@ -85,15 +87,17 @@ function syncTheme() {
   theme.value = getThemeFromDom()
 }
 
-const obs = new MutationObserver(syncTheme)
-
 onMounted(() => {
   initExtensions()
   syncTheme()
+  obs = new MutationObserver(syncTheme)
   obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 })
 
-onBeforeUnmount(() => obs.disconnect())
+onBeforeUnmount(() => {
+  obs?.disconnect()
+  obs = null
+})
 
 // 使用 shallowRef 存儲 extensions，確保不會因響應式而重新創建
 const extensions = shallowRef<any[]>([])
