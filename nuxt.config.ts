@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
     srcDir: 'src/',
     ssr: true,
+    nitro: {
+        preset: "cloudflare-pages",
+    },
     css: ['~/assets/styles/main.css'],
     app: {
         head: {
@@ -54,12 +57,5 @@ export default defineNuxtConfig({
                 },
             ],
         },
-    },
-    nitro: {
-        preset: 'static',
-        prerender: {
-            crawlLinks: true,
-            routes: ['/'],
-        },
-    },
+    }
 })
