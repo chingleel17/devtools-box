@@ -14,8 +14,16 @@ export default defineNuxtConfig({
             meta: [
                 {
                     name: 'description',
-                    content: '現代化開發者工具箱 - JSON格式化、Markdown預覽、文檔檢視器',
+                    content: '現代化開發者工具箱 - 線上 JSON 格式化/驗證、Markdown 即時預覽、文字差異比較、密碼產生器等實用工具',
                 },
+                { property: 'og:site_name', content: '開發者工具箱 DevTools Box' },
+                { property: 'og:type', content: 'website' },
+                { property: 'og:image', content: 'https://markdown-json-viewer.pages.dev/toolbox_og_1200x630.png' },
+                { property: 'og:image:alt', content: '開發者工具箱 - 免費線上 JSON 格式化、Markdown 預覽等開發工具' },
+                { property: 'og:url', content: 'https://markdown-json-viewer.pages.dev' },
+                { name: 'twitter:card', content: 'summary' },
+                { name: 'twitter:site', content: '@devtools_box' },
+                { name: 'author', content: 'YC.L' },
             ],
             link: [
                 {

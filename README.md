@@ -81,4 +81,4 @@ npx wrangler pages deploy dist
 
 ## License
 
-Copyright © 2025 ching lee. All rights reserved.
+Copyright © 2025 YC.L. All rights reserved.
