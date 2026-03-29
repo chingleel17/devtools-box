@@ -35,8 +35,8 @@ Features: uppercase/lowercase letters, digits, special characters.
 
 ### 文檔檢視器 (Document Viewer)
 **URL**: https://markdown-json-viewer.pages.dev/tool/document-viewer
-Browser-based document viewer supporting Markdown and plain text formats.
-No software installation needed.
+Browser-based viewer for RAG document chunks stored as JSON (pageContent/metadata).
+Designed for inspecting and searching these JSON datasets in the browser; not a general Markdown/plain-text renderer.
 
 ### TOON 格式轉換器 (TOON Converter)
 **URL**: https://markdown-json-viewer.pages.dev/tool/toon-converter

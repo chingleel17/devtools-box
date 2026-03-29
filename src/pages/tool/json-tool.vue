@@ -96,7 +96,7 @@ useHead({
         <summary style="font-size: 0.9rem; font-weight: 600; cursor: pointer; user-select: none;">關於 JSON 格式化工具
         </summary>
         <p>JSON 格式化工具是一款免費的線上開發者工具，可將壓縮或難以閱讀的 JSON 資料即時美化成縮排清晰的格式。支援語法高亮、錯誤驗證與自動修復，讓開發者能快速定位 JSON 語法問題。</p>
-        <p>本工具支援帶有 <code>//</code> 與 <code>/* */</code> 註解的 JSON5 格式，會自動移除註解後進行標準化解析。同時提供樹狀結構檢視模式，方便瀏覽深度巢狀的 JSON
+        <p>本工具支援帶有 <code>//</code> 與 <code>/* */</code> 註解的 JSONC（帶註解的 JSON）格式，會自動移除註解後進行標準化解析，並對部分常見語法錯誤嘗試自動修復。同時提供樹狀結構檢視模式，方便瀏覽深度巢狀的 JSON
             物件與陣列。無論是 API 回應、設定檔，還是資料庫匯出，皆可直接貼入使用。所有資料均在瀏覽器本地處理，不會上傳至任何伺服器，確保資料安全與隱私。</p>
         <p><strong>主要功能：</strong>JSON 美化格式化、JSON 壓縮、語法錯誤驗證與提示、帶註解 JSON 支援、樹狀結構檢視、一鍵複製輸出結果。</p>
         <nav aria-label="相關工具">

@@ -18,7 +18,7 @@ export default defineNuxtConfig({
                 },
                 { property: 'og:site_name', content: '開發者工具箱 DevTools Box' },
                 { property: 'og:type', content: 'website' },
-                { property: 'og:image', content: 'https://markdown-json-viewer.pages.dev/toolbox_favicon_v4.svg' },
+                { property: 'og:image', content: 'https://markdown-json-viewer.pages.dev/toolbox_og_1200x630.png' },
                 { property: 'og:image:alt', content: '開發者工具箱 - 免費線上 JSON 格式化、Markdown 預覽等開發工具' },
                 { property: 'og:url', content: 'https://markdown-json-viewer.pages.dev' },
                 { name: 'twitter:card', content: 'summary' },
