@@ -3,6 +3,7 @@ import TerminalSidebar from '../components/TerminalSidebar.vue'
 import { useTerminalMode } from '../composables/useTerminalMode'
 
 const { isCollapsed } = useTerminalMode()
+
 </script>
 
 <template>
@@ -16,7 +17,15 @@ const { isCollapsed } = useTerminalMode()
 
             <footer class="container-fluid text-center p-1 mt-auto"
                 style="backdrop-filter: blur(20px); margin-top: 2rem;">
-                <small class="text-muted">Copyright © 2025 ching lee. All rights reserved.</small>
+                <small class="text-muted d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                    <i class="bi bi-tools" aria-hidden="true"></i>
+                    <span>開發者工具箱 DevTools Box</span>
+                    <span>Copyright &copy; 2025</span>
+                    <span itemscope itemtype="https://schema.org/Person">
+                        <span itemprop="name">YC.L</span>
+                    </span>
+                    <span>。All rights reserved.</span>
+                </small>
             </footer>
         </div>
     </div>

@@ -1,0 +1,50 @@
+# DevTools Box - 開發者工具箱
+
+> 免費線上開發者工具集合，提供 JSON 格式化、Markdown 預覽、文字差異比較等實用工具。
+
+## About
+
+DevTools Box (開發者工具箱) is a free, browser-based collection of developer utilities.
+No installation required. All tools run entirely in the browser.
+
+**URL**: https://markdown-json-viewer.pages.dev
+**Author**: YC.L
+**Language**: Traditional Chinese (zh-TW) with English UI support
+
+## Tools
+
+### JSON 格式化工具 (JSON Formatter)
+**URL**: https://markdown-json-viewer.pages.dev/tool/json-tool
+Format, validate, and beautify JSON data. Supports JSON with comments (JSONC).
+Features: syntax highlighting, error detection, compression, copy output.
+
+### Markdown 即時預覽編輯器 (Markdown Editor)
+**URL**: https://markdown-json-viewer.pages.dev/tool/markdown-tool
+Real-time Markdown editor with live preview, syntax highlighting, and table of contents navigation.
+Features: split-pane view, copy as HTML, scroll sync.
+
+### 文字差異比較工具 (Diff Viewer)
+**URL**: https://markdown-json-viewer.pages.dev/tool/diff-viewer
+Side-by-side text difference comparator with line-by-line highlighting.
+Features: highlight additions, deletions, and modifications for code review.
+
+### 強密碼產生器 (Password Generator)
+**URL**: https://markdown-json-viewer.pages.dev/tool/password-generator
+Generate strong random passwords with customizable length and character sets.
+Features: uppercase/lowercase letters, digits, special characters.
+
+### 文檔檢視器 (Document Viewer)
+**URL**: https://markdown-json-viewer.pages.dev/tool/document-viewer
+Browser-based document viewer supporting Markdown and plain text formats.
+No software installation needed.
+
+### TOON 格式轉換器 (TOON Converter)
+**URL**: https://markdown-json-viewer.pages.dev/tool/toon-converter
+Data format conversion tool for TOON format processing.
+
+## Technical Details
+
+- Built with Nuxt 3 + Vue 3 + TypeScript
+- Static site generation (SSG) deployed on Cloudflare Pages
+- All processing done client-side — no data sent to servers
+- Supports light, dark, and terminal themes
