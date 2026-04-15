@@ -10,6 +10,9 @@ export function useTerminalMode() {
         const stored = localStorage.getItem(storageKey)
         if (stored !== null) {
             isCollapsed.value = stored === 'true'
+        } else if (window.innerWidth < 768) {
+            // 手機預設收折（隱藏 sidebar）
+            isCollapsed.value = true
         }
     })
 
