@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 import { menuItems, menuCategories, getMenuItemsByCategory } from '../config/menuConfig'
 import { useTerminalMode } from '../composables/useTerminalMode'
 import { useMenuSearch } from '../composables/useMenuSearch'
@@ -13,6 +12,10 @@ const route = useRoute()
 
 const { isCollapsed, toggleCollapsed, menuMode, toggleMenuMode, focusSearch } = useTerminalMode()
 const { searchQuery, searchResults, clearSearch, setSearchQuery } = useMenuSearch()
+
+const shouldAutoCollapse = (): boolean => {
+    return typeof window !== 'undefined' && import.meta.client && window.innerWidth < 768
+}
 
 // 獲取當前選中的工具 ID
 const currentToolId = computed(() => {
@@ -32,7 +35,7 @@ const navigateToTool = (toolId: string) => {
     router.push(currentId)
     backToList()
     // 在移動設備上自動收折側邊欄
-    if (window.innerWidth < 768) {
+    if (shouldAutoCollapse()) {
         if (!isCollapsed.value) toggleCollapsed()
     }
 }
@@ -40,7 +43,7 @@ const navigateToTool = (toolId: string) => {
 const navigateToHome = () => {
     router.push('/')
     // 在移動設備上自動收折側邊欄
-    if (window.innerWidth < 768) {
+    if (shouldAutoCollapse()) {
         if (!isCollapsed.value) toggleCollapsed()
     }
 }
@@ -498,15 +501,20 @@ const navigateToHome = () => {
     .terminal-sidebar {
         position: fixed;
         height: 100vh;
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--shadow-xl);
         z-index: 1000;
-        transform: translateX(0);
+        transition: transform 0.3s ease, width 0.3s ease;
+        /* 手機上固定展開寬度，不縮成迷你模式 */
+        width: var(--sidebar-width) !important;
     }
 
     .terminal-sidebar.collapsed {
+        /* 手機收折 = 完全隱藏到左側 */
         transform: translateX(-100%);
-        width: var(--sidebar-width);
-        /* MObile collapse = hidden */
+    }
+
+    .terminal-sidebar:not(.collapsed) {
+        transform: translateX(0);
     }
 }
 </style>

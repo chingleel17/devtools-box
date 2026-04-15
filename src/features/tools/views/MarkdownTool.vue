@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
+import { useOutputSelectAll } from '../../../composables/useOutputSelectAll'
+import { shallowRef } from 'vue'
+const previewWrapper = shallowRef()
+const { handleOutputKeydown } = useOutputSelectAll(previewWrapper)
 import { marked } from 'marked'
 import mermaid from 'mermaid'
-import LineNumbersEditor from '../components/LineNumbersEditor.vue'
-import ToolWrapper from '../components/ToolWrapper.vue'
-import Switch from '../components/Switch.vue'
-import ResizableSplitPane from '../components/ResizableSplitPane.vue'
-import TocTree from '../components/TocTree.vue'
-import { useLocalStorage } from '../composables/useLocalStorage'
+import LineNumbersEditor from '../../../components/LineNumbersEditor.vue'
+import ToolWrapper from '../../../components/ToolWrapper.vue'
+import Switch from '../../../components/Switch.vue'
+import ResizableSplitPane from '../../../components/ResizableSplitPane.vue'
+import TocTree from '../../../components/TocTree.vue'
+import { useLocalStorage } from '../../../composables/useLocalStorage'
 
 interface TocItem {
     text: string
@@ -24,6 +28,7 @@ const previewContainer = ref<HTMLDivElement>()
 const toc = ref<TocItem[]>([])
 const showToc = ref(false)
 const isHoveringPreview = ref(false)
+const isMermaidReady = ref(false)
 
 const isScrolling = ref(false)
 const collectedHeadings = ref<{ text: string, level: number, id: string }[]>([])
@@ -34,11 +39,13 @@ function generateId(text: string): string {
         .replace(/^-+|-+$/g, '') || 'heading'
 }
 
-// Initialize mermaid
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose',
+onMounted(() => {
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+    })
+    isMermaidReady.value = true
 })
 
 // Configure marked renderer
@@ -76,7 +83,7 @@ renderer.link = function (this: any, item) {
 
 marked.use({ renderer })
 
-watch(markdownInput, async (newVal) => {
+const renderMarkdown = async (newVal: string) => {
     try {
         // Reset collected headings before render
         collectedHeadings.value = []
@@ -86,14 +93,20 @@ watch(markdownInput, async (newVal) => {
         // Generate TOC tree from collected headings
         buildTocTree()
 
-        await nextTick()
-        await mermaid.run({
-            nodes: document.querySelectorAll('.mermaid')
-        })
+        if (import.meta.client && isMermaidReady.value) {
+            await nextTick()
+            await mermaid.run({
+                nodes: document.querySelectorAll('.mermaid')
+            })
+        }
     } catch (e) {
         console.error('Markdown/Mermaid rendering failed:', e)
     }
-})
+}
+
+watch(markdownInput, (newVal) => {
+    void renderMarkdown(newVal)
+}, { immediate: true })
 
 function clearMarkdown() {
     markdownInput.value = ''
@@ -115,6 +128,7 @@ function handleInputScroll(e: Event) {
 
 function handlePreviewScroll(e: Event) {
     if (!syncScroll.value || isScrolling.value) return
+    if (!import.meta.client) return
 
     const preview = e.target as HTMLDivElement
     const scrollPercentage = preview.scrollTop / (preview.scrollHeight - preview.clientHeight)
@@ -154,6 +168,8 @@ function buildTocTree() {
 }
 
 function scrollToHeading(id: string) {
+    if (!import.meta.client) return
+
     const element = document.getElementById(id)
     if (element && previewContainer.value) {
         // Lock scrolling to prevent sync-scroll from interfering
@@ -202,7 +218,7 @@ function scrollToTop() {
                             輸入 Markdown
                         </h6>
                         <button class="btn btn-sm btn-outline-danger" @click="clearMarkdown">
-                            <i class="bi bi-x-lg me-1"></i> 清除
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                     <div class="flex-grow-1 min-h-0">
@@ -245,9 +261,9 @@ function scrollToTop() {
                     <div class="modern-output-wrapper overflow-hidden flex-grow-1 min-h-0 position-relative d-flex"
                         style="box-shadow: var(--shadow-sm)" @mouseenter="isHoveringPreview = true"
                         @mouseleave="isHoveringPreview = false">
-                        <div ref="previewContainer"
-                            class="modern-output markdown-preview p-3 h-100 overflow-y-auto flex-grow-1"
-                            v-html="markdownOutput" @scroll="handlePreviewScroll"></div>
+                        <div class="modern-output markdown-preview p-3 h-100 overflow-y-auto flex-grow-1" tabindex="0"
+                            :ref="previewWrapper" @keydown="handleOutputKeydown" v-html="markdownOutput"
+                            @scroll="handlePreviewScroll"></div>
 
                         <!-- TOC Sidebar -->
                         <div v-if="showToc" class="toc-sidebar border-start"

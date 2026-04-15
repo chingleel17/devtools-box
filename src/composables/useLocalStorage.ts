@@ -10,6 +10,8 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
     // Load from localStorage on mount
     onMounted(() => {
+        if (!import.meta.client) return
+
         try {
             const stored = localStorage.getItem(key)
             if (stored !== null) {
@@ -22,6 +24,8 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
     // Watch for changes and save to localStorage
     watch(data, (newValue) => {
+        if (!import.meta.client) return
+
         try {
             localStorage.setItem(key, JSON.stringify(newValue))
         } catch (e) {
