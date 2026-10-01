@@ -35,7 +35,6 @@ function processCSS(): void {
     }
 
     formattedCSS.value = formatCSS(cssInput.value)
-    cssInput.value = formattedCSS.value
     cssOutput.value = formattedCSS.value
     isMinified.value = false
 }
