@@ -18,6 +18,10 @@ No installation required. All tools run entirely in the browser.
 Format, validate, and beautify JSON data. Supports JSON with comments (JSONC).
 Features: syntax highlighting, error detection, compression, copy output.
 
+### CSS 格式化工具 (CSS Formatter)
+**URL**: https://markdown-json-viewer.pages.dev/tool/css-tool
+Format, beautify, and minify CSS stylesheets in the browser.
+
 ### Markdown 即時預覽編輯器 (Markdown Editor)
 **URL**: https://markdown-json-viewer.pages.dev/tool/markdown-tool
 Real-time Markdown editor with live preview, syntax highlighting, and table of contents navigation.

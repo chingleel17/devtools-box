@@ -6,7 +6,7 @@ import type { MenuItem, MenuCategory } from '../types/menu'
 export const menuCategories: MenuCategory[] = [
     {
         id: 'text-tools',
-        label: '文本工具',
+        label: '文字工具',
         icon: 'bi-file-text',
     },
     {
@@ -39,6 +39,15 @@ export const menuItems: MenuItem[] = [
         route: '/tool/json-tool',
         aliases: ['json', 'parse', '格式化', 'format', 'validate', 'schema'],
         description: '快速解析、格式化、驗證 JSON 資料',
+    },
+    {
+        id: 'css-tool',
+        label: 'CSS 工具',
+        category: 'text-tools',
+        icon: 'bi-filetype-css',
+        route: '/tool/css-tool',
+        aliases: ['css', 'minify', 'beautify', '壓縮', '格式化', '美化'],
+        description: '格式化、美化與壓縮 CSS 樣式',
     },
     {
         id: 'markdown-tool',

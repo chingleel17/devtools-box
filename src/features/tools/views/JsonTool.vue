@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Swal from 'sweetalert2'
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useOutputSelectAll } from '../../../composables/useOutputSelectAll'
 import { shallowRef } from 'vue'
 import LineNumbersEditor from '../../../components/LineNumbersEditor.vue'
@@ -25,21 +25,17 @@ const isMinified = ref(false)
 const isAllFolded = ref(false)
 const splitRatio = ref(50)
 let currentJSON: any = null
+let hasCurrentJSON = false
 
 // 輸入區和輸出區的 ref
 const inputEditor = ref()
 const outputEditor = ref()
 
-const isValid = computed(() => {
-    if (!jsonInput.value.trim()) return null
-    const result = validateAndParseJSON(jsonInput.value)
-    return result.valid
-})
-
 function validateJSON() {
     const result = validateAndParseJSON(jsonInput.value)
     if (result.valid) {
         currentJSON = result.data
+        hasCurrentJSON = true
         jsonStatus.value = '✓ 有效'
         jsonError.value = ''
         return true
@@ -47,9 +43,9 @@ function validateJSON() {
         // 自動嘗試修復無效的 JSON
         const repairResult = attemptJSONRepair(jsonInput.value)
         if (repairResult.success) {
-            jsonInput.value = repairResult.repaired
             // 解析修復後的 JSON 取得資料
             currentJSON = JSON.parse(repairResult.repaired)
+            hasCurrentJSON = true
             jsonStatus.value = '✓ 已自動修復'
             jsonError.value = ''
             Swal.fire({
@@ -63,6 +59,8 @@ function validateJSON() {
             })
             return true
         }
+        currentJSON = null
+        hasCurrentJSON = false
         jsonStatus.value = '✗ 無效'
         jsonError.value = `錯誤: ${result.error}`
         return false
@@ -125,7 +123,7 @@ function formatValue(value: any): string {
 }
 
 function updateDisplay() {
-    if (!currentJSON) return
+    if (!hasCurrentJSON) return
 
     let displayData = currentJSON
     if (action.value === 'schema') {
@@ -178,10 +176,6 @@ function processJSON() {
         })
         return
     }
-    // Format 模式下自動美化輸入區 JSON
-    if (action.value === 'format' && currentJSON) {
-        jsonInput.value = JSON.stringify(currentJSON, null, 2)
-    }
     isMinified.value = false
     updateDisplay()
 }
@@ -193,6 +187,7 @@ function clearJSON() {
     jsonStatus.value = ''
     jsonError.value = ''
     currentJSON = null
+    hasCurrentJSON = false
 }
 
 function toggleFoldAll() {
@@ -232,9 +227,12 @@ function toggleFoldAll() {
 function autoFixJSONInput() {
     const result = attemptJSONRepair(jsonInput.value)
     if (result.success) {
-        jsonInput.value = result.repaired
-        validateJSON()
+        currentJSON = JSON.parse(result.repaired)
+        hasCurrentJSON = true
         jsonStatus.value = '✓ 已自動修復'
+        jsonError.value = ''
+        isMinified.value = false
+        updateDisplay()
         Swal.fire({
             icon: 'success',
             title: 'JSON 已自動修復',
@@ -263,7 +261,7 @@ function stripHtmlTags(html: string): string {
 
 function minifyJSON() {
     // 驗證必須有效
-    if (!currentJSON) {
+    if (!hasCurrentJSON) {
         // 輸入驗證失敗用 toast
         Swal.fire({
             icon: 'warning',
@@ -337,7 +335,7 @@ function generateJSONSchema(obj: any): any {
 
 // 監聽 action 和 viewMode 變化，自動更新顯示
 watch([action, viewMode], () => {
-    if (currentJSON && isValid.value) {
+    if (hasCurrentJSON) {
         isMinified.value = false
         updateDisplay()
     }
@@ -358,7 +356,7 @@ watch([action, viewMode], () => {
                                     <i class="bi bi-pencil-square me-2"></i>
                                     輸入JSON
                                 </h6>
-                                <span v-if="jsonStatus" :class="['badge', isValid ? 'bg-success' : 'bg-danger']">
+                                <span v-if="jsonStatus" :class="['badge', jsonStatus.startsWith('✓') ? 'bg-success' : 'bg-danger']">
                                     {{ jsonStatus }}
                                 </span>
                             </div>

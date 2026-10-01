@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onBeforeUnmount, shallowRef } from 'vue'
 
 import { Codemirror } from "vue-codemirror"
 import { json } from '@codemirror/lang-json'
+import { css } from '@codemirror/lang-css'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView } from '@codemirror/view'
 import { lineNumbers } from '@codemirror/view'
@@ -16,12 +17,14 @@ const props = withDefaults(defineProps<{
   autofocus?: boolean,
   showLineNumbers?: boolean,
   enableFolding?: boolean,
+  language?: 'json' | 'css',
 }>(), {
   placeholder: '請輸入 JSON...',
   readonly: false,
   autofocus: false,
   showLineNumbers: true,
   enableFolding: false,
+  language: 'json',
 })
 
 const emit = defineEmits<{
@@ -105,7 +108,7 @@ const extensions = shallowRef<any[]>([])
 // 初始化 extensions
 function initExtensions() {
   const ext = [
-    json(),
+    props.language === 'css' ? css() : json(),
     EditorView.lineWrapping,
     themeCompartment.of(getThemeExtension()),
     EditorView.updateListener.of((update: any) => {

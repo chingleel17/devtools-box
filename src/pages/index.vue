@@ -3,7 +3,7 @@ import { menuItems, menuCategories } from '~/config/menuConfig'
 
 useHead({
     title: '開發者工具箱 | DevTools Box',
-    meta: [{ name: 'description', content: '現代化開發者工具箱，集合 JSON 格式化、Markdown 預覽、Diff 比較、密碼產生器等實用工具' }],
+    meta: [{ name: 'description', content: '開發者工具箱，集合 JSON 與 CSS 格式化、Markdown 預覽、Diff 比較、密碼產生器等實用工具' }],
 })
 
 const categoryIconMap: Record<string, string> = {
@@ -26,7 +26,7 @@ const categoryIconMap: Record<string, string> = {
                 <span class="hero-title-main">DevTools Box</span>
                 <span class="hero-title-sub">開發者工具箱</span>
             </h1>
-            <p class="hero-desc">集合常用開發工具，快速處理 JSON、Markdown、文字差異比較等日常任務</p>
+            <p class="hero-desc">集合常用開發工具，快速處理 JSON、CSS、Markdown、文字差異比較等日常任務</p>
             <div class="hero-stats">
                 <span class="stat-item"><i class="bi bi-grid-3x3-gap"></i> {{ menuItems.length }} 個工具</span>
                 <span class="stat-divider">·</span>
