@@ -14,7 +14,7 @@ const { isCollapsed, toggleCollapsed, menuMode, toggleMenuMode, focusSearch } = 
 const { searchQuery, searchResults, clearSearch, setSearchQuery } = useMenuSearch()
 
 const shouldAutoCollapse = (): boolean => {
-    return typeof window !== 'undefined' && import.meta.client && window.innerWidth < 768
+    return typeof window !== 'undefined' && import.meta.client === true && window.innerWidth < 768
 }
 
 // 獲取當前選中的工具 ID

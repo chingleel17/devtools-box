@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
     srcDir: 'src/',
+    compatibilityDate: '2026-10-01',
     ssr: true,
     nitro: {
         preset: "cloudflare-pages",
@@ -14,12 +15,12 @@ export default defineNuxtConfig({
             meta: [
                 {
                     name: 'description',
-                    content: '現代化開發者工具箱 - 線上 JSON 格式化/驗證、Markdown 即時預覽、文字差異比較、密碼產生器等實用工具',
+                    content: '開發者工具箱 - 線上 JSON 與 CSS 格式化、Markdown 即時預覽、文字差異比較、密碼產生器等實用工具',
                 },
                 { property: 'og:site_name', content: '開發者工具箱 DevTools Box' },
                 { property: 'og:type', content: 'website' },
                 { property: 'og:image', content: 'https://markdown-json-viewer.pages.dev/toolbox_og_1200x630.png' },
-                { property: 'og:image:alt', content: '開發者工具箱 - 免費線上 JSON 格式化、Markdown 預覽等開發工具' },
+                { property: 'og:image:alt', content: '開發者工具箱 - 免費線上 JSON、CSS 格式化與 Markdown 預覽工具' },
                 { property: 'og:url', content: 'https://markdown-json-viewer.pages.dev' },
                 { name: 'twitter:card', content: 'summary' },
                 { name: 'twitter:site', content: '@devtools_box' },
